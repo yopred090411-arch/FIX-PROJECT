@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Data Overtime Karyawan Curing</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f8;color:#333;font-size:14px}
+header{background:linear-gradient(135deg,#1a73e8,#0d47a1);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+header h1{font-size:1.1rem;line-height:1.3}
+nav{display:flex;background:#fff;border-bottom:2px solid #e0e0e0;overflow-x:auto}
+nav button{padding:11px 14px;border:none;background:none;cursor:pointer;font-size:.82rem;color:#555;border-bottom:3px solid transparent;white-space:nowrap;transition:all .2s}
+nav button.active{color:#1a73e8;border-bottom-color:#1a73e8;font-weight:600}
+nav button:hover{color:#1a73e8;background:#f5f9ff}
+.container{padding:16px;max-width:1100px;margin:auto}
+.card{background:#fff;border-radius:10px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:16px}
+.card h2{font-size:.95rem;margin-bottom:14px;color:#1a73e8;display:flex;align-items:center;gap:7px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.form-grid{grid-template-columns:1fr}nav button{padding:9px 10px;font-size:.78rem}}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:.78rem;font-weight:600;color:#555}
+.form-group input,.form-group select,.form-group textarea{padding:8px 10px;border:1.5px solid #ddd;border-radius:7px;font-size:.88rem;background:#fafafa;font-family:inherit;transition:border-color .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#1a73e8;background:#fff}
+.form-full{grid-column:1/-1}
+.btn{padding:8px 16px;border:none;border-radius:7px;cursor:pointer;font-size:.83rem;font-weight:600;display:inline-flex;align-items:center;gap:5px;transition:all .2s}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:#1a73e8;color:#fff}.btn-primary:not(:disabled):hover{background:#1558b0}
+.btn-danger{background:#e53935;color:#fff}.btn-danger:not(:disabled):hover{background:#c62828}
+.btn-secondary{background:#607d8b;color:#fff}.btn-secondary:hover{background:#455a64}
+.btn-warning{background:#f57c00;color:#fff}.btn-warning:hover{background:#e65100}
+.btn-info{background:#00897b;color:#fff}.btn-info:hover{background:#00695c}
+.btn-purple{background:#7b1fa2;color:#fff}.btn-purple:hover{background:#6a1b9a}
+.btn-green{background:#2e7d32;color:#fff}.btn-green:hover{background:#1b5e20}
+.btn-sm{padding:5px 10px;font-size:.76rem}
+.action-bar{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+thead{background:#1a73e8;color:#fff}
+thead th{padding:9px 10px;text-align:left;white-space:nowrap}
+tbody tr{border-bottom:1px solid #eee}
+tbody tr:hover{background:#f5f9ff}
+tbody td{padding:7px 10px;vertical-align:middle}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:700}
+.bs1{background:#e3f2fd;color:#1565c0}.bs2{background:#fff3e0;color:#e65100}.bs3{background:#f3e5f5;color:#6a1b9a}
+.bak{background:#e8f5e9;color:#2e7d32}.bna{background:#ffebee;color:#c62828}
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:flex-end}
+.filter-bar .form-group{min-width:130px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:14px}
+.stat-card{background:#fff;border-radius:8px;padding:12px;box-shadow:0 2px 6px rgba(0,0,0,.07);text-align:center}
+.stat-card .val{font-size:1.6rem;font-weight:700;color:#1a73e8}
+.stat-card .lbl{font-size:.72rem;color:#888;margin-top:2px}
+#toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:10px 18px;border-radius:8px;font-size:.84rem;opacity:0;transition:opacity .3s;z-index:9999;max-width:90vw;text-align:center;pointer-events:none}
+#toast.show{opacity:1}
+.empty{text-align:center;padding:32px;color:#aaa;font-size:.88rem}
+.empty span{font-size:2rem;display:block;margin-bottom:6px}
+.page{display:none}.page.active{display:block}
+.ac-wrap{position:relative}
+.ac-list{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid #1a73e8;border-top:none;border-radius:0 0 8px 8px;z-index:200;max-height:160px;overflow-y:auto;display:none;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.ac-list.show{display:block}
+.ac-item{padding:7px 11px;cursor:pointer;font-size:.84rem}.ac-item:hover{background:#f0f4ff}
+#ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:3000;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:#fff;font-size:.9rem}
+#ov.show{display:flex}
+.spin{width:40px;height:40px;border:4px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* NIP input styling */
+.nip-hint{font-size:.72rem;color:#888;margin-top:3px}
+/* Sinkron info box */
+.sync-box{background:#e8f5e9;border:1.5px solid #4caf50;border-radius:10px;padding:14px 16px;margin-bottom:16px}
+.sync-box h3{font-size:.9rem;color:#2e7d32;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.sync-box p{font-size:.8rem;color:#388e3c;line-height:1.6;margin-bottom:8px}
+.sync-box .sync-steps{font-size:.8rem;color:#444;line-height:2}
+/* Modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:4000;align-items:center;justify-content:center;padding:20px}
+.modal-bg.show{display:flex}
+.modal{background:#fff;border-radius:12px;padding:22px;max-width:480px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.modal h3{font-size:1rem;color:#1a73e8;margin-bottom:14px}
+.modal textarea{width:100%;padding:10px;border:1.5px solid #ddd;border-radius:7px;font-family:monospace;font-size:.75rem;height:180px;resize:vertical}
+.modal .action-bar{margin-top:12px}
+</style>
+</head>
+<body>
+
+<header>
+  <span>⏱️</span>
+  <div><h1>Data Overtime Karyawan Curing</h1><small style="opacity:.8">PT. — Departemen Curing</small></div>
+</header>
+
+<nav>
+  <button class="active" onclick="showPage('input',this)">➕ Input OT</button>
+  <button onclick="showPage('data',this)">📋 Data OT</button>
+  <button onclick="showPage('karyawan',this)">👥 Karyawan</button>
+  <button onclick="showPage('sinkron',this)">🔄 Sinkron</button>
+  <button onclick="showPage('history',this)">🕓 History</button>
+</nav>
+
+<div id="toast"></div>
+<div id="ov"><div class="spin"></div><div id="ovMsg">Memuat...</div></div>
+
+<!-- Modal Import -->
+<div class="modal-bg" id="modalImport">
+  <div class="modal">
+    <h3>📥 Import Data dari Perangkat Lain</h3>
+    <p style="font-size:.82rem;color:#666;margin-bottom:10px">Paste kode data yang dikirim dari perangkat lain:</p>
+    <textarea id="importText" placeholder="Paste kode di sini..."></textarea>
+    <div class="action-bar">
+      <button class="btn btn-primary" onclick="doImport()">✅ Import</button>
+      <button class="btn btn-secondary" onclick="tutupModal()">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ INPUT PAGE ══ -->
+<div class="page active" id="page-input">
+<div class="container">
+<div class="card">
+  <h2>➕ Input Data Overtime</h2>
+  <div class="form-grid">
+    <div class="form-group ac-wrap">
+      <label>Nama Karyawan *</label>
+      <input type="text" id="inp-nama" placeholder="Ketik nama atau NIP..." oninput="cariKary(this.value)" autocomplete="off"/>
+      <div class="ac-list" id="acList"></div>
+    </div>
+    <div class="form-group">
+      <label>NIP * (format: XX-XXXX)</label>
+      <input type="text" id="inp-nip" placeholder="Cth: 04-0112" maxlength="7" oninput="formatNIP(this)"/>
+      <span class="nip-hint">Contoh: 04-0112 · 20-0118 · 11-0801</span>
+    </div>
+    <div class="form-group"><label>Departemen</label><input type="text" id="inp-dept" readonly style="background:#f0f0f0"/></div>
+    <div class="form-group"><label>Jabatan</label><input type="text" id="inp-jabatan" readonly style="background:#f0f0f0"/></div>
+    <div class="form-group"><label>Tanggal OT *</label><input type="date" id="inp-tanggal"/></div>
+    <div class="form-group"><label>Shift *</label>
+      <select id="inp-shift">
+        <option value="">-- Pilih --</option>
+        <option value="Shift 1">Shift 1 (07.00–15.00)</option>
+        <option value="Shift 2">Shift 2 (15.00–23.00)</option>
+        <option value="Shift 3">Shift 3 (23.00–07.00)</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Jam Mulai</label><input type="time" id="inp-jamMulai"/></div>
+    <div class="form-group"><label>Jam Selesai</label><input type="time" id="inp-jamSelesai"/></div>
+    <div class="form-group form-full"><label>Keterangan</label><input type="text" id="inp-ket" placeholder="Deskripsi pekerjaan overtime"/></div>
+  </div>
+  <div class="action-bar">
+    <button class="btn btn-primary" onclick="simpanOT()">💾 Simpan</button>
+    <button class="btn btn-secondary" onclick="resetForm()">🔄 Reset</button>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- ══ DATA OT PAGE ══ -->
+<div class="page" id="page-data">
+<div class="container">
+  <div class="stats-grid" id="statsGrid"></div>
+  <div class="card">
+    <h2>📋 Data Overtime</h2>
+    <div class="filter-bar">
+      <div class="form-group"><label>Tanggal</label><input type="date" id="f-tgl" oninput="renderTable()"/></div>
+      <div class="form-group"><label>Bulan</label><input type="month" id="f-bln" oninput="renderTable()"/></div>
+      <div class="form-group"><label>Shift</label>
+        <select id="f-shift" onchange="renderTable()">
+          <option value="">Semua</option><option>Shift 1</option><option>Shift 2</option><option>Shift 3</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Cari Nama/NIP</label><input type="text" id="f-q" placeholder="Nama atau NIP..." oninput="renderTable()"/></div>
+      <button class="btn btn-secondary btn-sm" onclick="resetFilter()">✖ Reset</button>
+    </div>
+    <div class="action-bar" style="margin-bottom:10px">
+      <button class="btn btn-info btn-sm" onclick="exportPNG('ot')">🖼️ Export PNG</button>
+      <button class="btn btn-purple btn-sm" onclick="exportCSV()">📥 Export CSV</button>
+    </div>
+    <div class="table-wrapper">
+      <table><thead><tr><th>#</th><th>Tanggal</th><th>Shift</th><th>Nama</th><th>NIP</th><th>Dept</th><th>Jabatan</th><th>Jam OT</th><th>Durasi</th><th>Keterangan</th><th>Aksi</th></tr></thead>
+      <tbody id="tblOT"></tbody></table>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══ KARYAWAN PAGE ══ -->
+<div class="page" id="page-karyawan">
+<div class="container">
+  <div class="card">
+    <h2>👤 Tambah / Edit Karyawan</h2>
+    <input type="hidden" id="k-id"/>
+    <div class="form-grid">
+      <div class="form-group"><label>Nama *</label><input type="text" id="k-nama"/></div>
+      <div class="form-group">
+        <label>NIP * (format: XX-XXXX)</label>
+        <input type="text" id="k-nip" placeholder="Cth: 04-0112" maxlength="7" oninput="formatNIP(this)"/>
+        <span class="nip-hint">Contoh: 04-0112 · 20-0118 · 11-0801</span>
+      </div>
+      <div class="form-group"><label>Departemen</label><input type="text" id="k-dept"/></div>
+      <div class="form-group"><label>Jabatan</label><input type="text" id="k-jabatan"/></div>
+      <div class="form-group"><label>No. HP</label><input type="text" id="k-hp"/></div>
+      <div class="form-group"><label>Status</label>
+        <select id="k-status"><option>Aktif</option><option>Tidak Aktif</option></select>
+      </div>
+      <div class="form-group form-full"><label>Catatan</label><textarea id="k-cat" rows="2"></textarea></div>
+    </div>
+    <div class="action-bar">
+      <button class="btn btn-primary" onclick="simpanKary()">💾 Simpan Karyawan</button>
+      <button class="btn btn-secondary" onclick="resetFormK()">🔄 Reset</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>👥 Daftar Karyawan</h2>
+    <div class="filter-bar">
+      <div class="form-group"><label>Cari</label><input type="text" id="k-q" placeholder="Nama/NIP/Dept..." oninput="renderKary()"/></div>
+      <div class="form-group"><label>Status</label>
+        <select id="k-sf" onchange="renderKary()"><option value="">Semua</option><option>Aktif</option><option>Tidak Aktif</option></select>
+      </div>
+    </div>
+    <div class="action-bar" style="margin-bottom:10px">
+      <button class="btn btn-info btn-sm" onclick="exportPNG('kary')">🖼️ Export PNG</button>
+      <button class="btn btn-purple btn-sm" onclick="exportKaryCSV()">📥 Export CSV</button>
+    </div>
+    <div class="table-wrapper">
+      <table><thead><tr><th>#</th><th>Nama</th><th>NIP</th><th>Departemen</th><th>Jabatan</th><th>HP</th><th>Status</th><th>Aksi</th></tr></thead>
+      <tbody id="tblKary"></tbody></table>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══ SINKRON PAGE ══ -->
+<div class="page" id="page-sinkron">
+<div class="container">
+  <div class="sync-box">
+    <h3>📱 Cara Berbagi Data ke Semua Device</h3>
+    <p>Kirim file <b>overtime_curing.html</b> lewat WhatsApp ke semua anggota tim. Lalu gunakan fitur <b>Export → Import</b> di bawah untuk menyinkronkan data.</p>
+    <div class="sync-steps">
+      📤 <b>Kirim data:</b> Klik Export, copy kode, kirim via WhatsApp<br>
+      📥 <b>Terima data:</b> Klik Import, paste kode dari WhatsApp, klik Import
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📤 Export Data (Kirim ke Device Lain)</h2>
+    <p style="font-size:.82rem;color:#666;margin-bottom:12px">Pilih data yang ingin dikirim, lalu copy kode dan kirim via WhatsApp / email.</p>
+    <div class="action-bar">
+      <button class="btn btn-primary" onclick="eksporSinkron('semua')">📦 Export Semua Data</button>
+      <button class="btn btn-info" onclick="eksporSinkron('ot')">📋 Export Data OT Saja</button>
+      <button class="btn btn-green" onclick="eksporSinkron('kary')">👥 Export Karyawan Saja</button>
+    </div>
+    <div id="eksporHasil" style="margin-top:14px;display:none">
+      <label style="font-size:.82rem;font-weight:600;color:#555;display:block;margin-bottom:6px">Kode data (copy & kirim via WhatsApp):</label>
+      <textarea id="eksporText" style="width:100%;padding:10px;border:1.5px solid #1a73e8;border-radius:7px;font-family:monospace;font-size:.72rem;height:120px;resize:vertical" readonly onclick="this.select()"></textarea>
+      <div class="action-bar">
+        <button class="btn btn-primary" onclick="copyKode()">📋 Copy Kode</button>
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('eksporHasil').style.display='none'">✖ Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📥 Import Data (Terima dari Device Lain)</h2>
+    <p style="font-size:.82rem;color:#666;margin-bottom:12px">Pilih mode import — <b>Gabung</b> akan menambah data baru tanpa menghapus yang sudah ada. <b>Timpa</b> akan mengganti semua data.</p>
+    <div class="action-bar">
+      <button class="btn btn-green" onclick="bukaImport('gabung')">➕ Import Gabung</button>
+      <button class="btn btn-warning" onclick="bukaImport('timpa')">🔄 Import Timpa</button>
+    </div>
+    <input type="hidden" id="importMode"/>
+  </div>
+
+  <div class="card">
+    <h2>⚠️ Zona Bahaya</h2>
+    <div class="action-bar">
+      <button class="btn btn-danger btn-sm" onclick="hapusSemuaOT()">🗑️ Hapus Semua Data OT</button>
+      <button class="btn btn-danger btn-sm" onclick="hapusSemuaKary()">🗑️ Hapus Semua Karyawan</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══ HISTORY PAGE ══ -->
+<div class="page" id="page-history">
+<div class="container">
+  <div class="card">
+    <h2>🕓 History Export</h2>
+    <div class="table-wrapper">
+      <table><thead><tr><th>#</th><th>Waktu</th><th>Tipe</th><th>Jumlah</th><th>Format</th></tr></thead>
+      <tbody id="tblHist"></tbody></table>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════
+// STORAGE — localStorage
+// ════════════════════════════════════════════════
+const KOT='ot_v2_data', KARY='ot_v2_kary', KHIST='ot_v2_hist';
+const loadOT   = () => JSON.parse(localStorage.getItem(KOT)  ||'[]');
+const loadKary = () => JSON.parse(localStorage.getItem(KARY) ||'[]');
+const loadHist = () => JSON.parse(localStorage.getItem(KHIST)||'[]');
+const saveOT   = d  => localStorage.setItem(KOT,   JSON.stringify(d));
+const saveKary = d  => localStorage.setItem(KARY,  JSON.stringify(d));
+const saveHist = d  => localStorage.setItem(KHIST, JSON.stringify(d));
+
+let otData=[], karyData=[], histData=[];
+
+function reloadAll(){
+  otData   = loadOT();
+  karyData = loadKary();
+  histData = loadHist();
+}
+
+// ════════════════════════════════════════════════
+// FORMAT NIP: otomatis sisipkan '-' setelah 2 digit
+// ════════════════════════════════════════════════
+function formatNIP(el){
+  let val = el.value.replace(/[^0-9]/g,''); // hanya angka
+  if(val.length > 2) val = val.slice(0,2) + '-' + val.slice(2,6);
+  else val = val.slice(0,2);
+  el.value = val;
+}
+
+function validasiNIP(nip){
+  return /^\d{2}-\d{4}$/.test(nip.trim());
+}
+
+// ════════════════════════════════════════════════
+// NAV
+// ════════════════════════════════════════════════
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(id==='data')    { reloadAll(); renderTable(); renderStats(); }
+  if(id==='karyawan'){ reloadAll(); renderKary(); }
+  if(id==='history') { reloadAll(); renderHist(); }
+}
+
+// ════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  reloadAll();
+  document.getElementById('inp-tanggal').value = new Date().toISOString().split('T')[0];
+  renderStats();
+});
+
+// ════════════════════════════════════════════════
+// AUTOCOMPLETE
+// ════════════════════════════════════════════════
+function cariKary(val){
+  const l=document.getElementById('acList');
+  if(!val||val.length<1){l.classList.remove('show');return;}
+  const f=karyData.filter(e=>e.status!=='Tidak Aktif'&&(
+    e.nama.toLowerCase().includes(val.toLowerCase())||
+    e.nip.includes(val)
+  ));
+  if(!f.length){l.classList.remove('show');return;}
+  l.innerHTML=f.map(e=>`<div class="ac-item" onclick="pilihKary('${e.id}')">
+    <b>${e.nama}</b> — <code style="font-size:.78rem">${e.nip}</code>
+    <small style="color:#888"> ${e.dept||''} ${e.jabatan?'/ '+e.jabatan:''}</small>
+  </div>`).join('');
+  l.classList.add('show');
+}
+function pilihKary(id){
+  const e=karyData.find(x=>String(x.id)===String(id));if(!e)return;
+  document.getElementById('inp-nama').value    = e.nama;
+  document.getElementById('inp-nip').value     = e.nip;
+  document.getElementById('inp-dept').value    = e.dept||'';
+  document.getElementById('inp-jabatan').value = e.jabatan||'';
+  document.getElementById('acList').classList.remove('show');
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.ac-wrap')) document.getElementById('acList').classList.remove('show');
+});
+
+// ════════════════════════════════════════════════
+// INPUT OT
+// ════════════════════════════════════════════════
+function simpanOT(){
+  const nama=g('inp-nama'), nip=g('inp-nip'), tanggal=g('inp-tanggal'), shift=g('inp-shift');
+  if(!nama||!tanggal||!shift){ toast('⚠️ Nama, Tanggal, Shift wajib diisi!','warn'); return; }
+  if(nip && !validasiNIP(nip)){ toast('⚠️ Format NIP harus XX-XXXX (contoh: 04-0112)','warn'); return; }
+  const data = loadOT();
+  data.push({
+    id: Date.now(), nama, nip, tanggal, shift,
+    jamMulai:g('inp-jamMulai'), jamSelesai:g('inp-jamSelesai'),
+    ket:g('inp-ket'), dept:g('inp-dept'), jabatan:g('inp-jabatan'),
+    inputAt: new Date().toISOString()
+  });
+  saveOT(data);
+  otData = data;
+  resetForm();
+  renderStats();
+  toast('✅ Data OT berhasil disimpan!');
+}
+
+function resetForm(){
+  ['inp-nama','inp-nip','inp-jamMulai','inp-jamSelesai','inp-ket','inp-dept','inp-jabatan'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('inp-shift').value='';
+  document.getElementById('inp-tanggal').value=new Date().toISOString().split('T')[0];
+}
+
+// ════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════
+function g(id){ return document.getElementById(id)?.value?.trim()||''; }
+function dur(a,b){
+  if(!a||!b)return'-';
+  const[hm,mm]=a.split(':').map(Number),[hs,ms]=b.split(':').map(Number);
+  let m=(hs*60+ms)-(hm*60+mm); if(m<0)m+=1440;
+  return`${Math.floor(m/60)}j ${m%60}m`;
+}
+function fTgl(s){
+  if(!s)return'-';
+  return new Date(s+'T00:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric',weekday:'short'});
+}
+const SHO={'Shift 1':1,'Shift 2':2,'Shift 3':3};
+const SHC={'Shift 1':'bs1','Shift 2':'bs2','Shift 3':'bs3'};
+
+function getFiltered(){
+  let d=loadOT(); // langsung dari storage, selalu fresh
+  const ft=g('f-tgl'),fb=g('f-bln'),fs=g('f-shift'),fq=g('f-q').toLowerCase();
+  if(ft) d=d.filter(r=>r.tanggal===ft);
+  if(fb) d=d.filter(r=>r.tanggal&&String(r.tanggal).startsWith(fb));
+  if(fs) d=d.filter(r=>r.shift===fs);
+  if(fq) d=d.filter(r=>r.nama?.toLowerCase().includes(fq)||String(r.nip).includes(fq));
+  d.sort((a,b)=>a.tanggal!==b.tanggal?String(a.tanggal).localeCompare(String(b.tanggal)):(SHO[a.shift]||9)-(SHO[b.shift]||9));
+  return d;
+}
+
+// ════════════════════════════════════════════════
+// RENDER TABLE OT
+// ════════════════════════════════════════════════
+function renderTable(){
+  const data=getFiltered(), tb=document.getElementById('tblOT');
+  if(!data.length){
+    tb.innerHTML=`<tr><td colspan="11"><div class="empty"><span>📭</span>Tidak ada data</div></td></tr>`;return;
+  }
+  tb.innerHTML=data.map((r,i)=>`<tr>
+    <td>${i+1}</td>
+    <td>${fTgl(r.tanggal)}</td>
+    <td><span class="badge ${SHC[r.shift]||''}">${r.shift}</span></td>
+    <td><b>${r.nama}</b></td>
+    <td><code style="font-size:.8rem">${r.nip||'-'}</code></td>
+    <td>${r.dept||'-'}</td>
+    <td>${r.jabatan||'-'}</td>
+    <td>${r.jamMulai||'-'}–${r.jamSelesai||'-'}</td>
+    <td>${dur(r.jamMulai,r.jamSelesai)}</td>
+    <td>${r.ket||'-'}</td>
+    <td style="white-space:nowrap">
+      <button class="btn btn-warning btn-sm" onclick="editOT('${r.id}')">✏️</button>
+      <button class="btn btn-danger btn-sm" onclick="hapusOT('${r.id}')">🗑️</button>
+    </td></tr>`).join('');
+}
+
+function renderStats(){
+  const d=loadOT();
+  const s1=d.filter(r=>r.shift==='Shift 1').length;
+  const s2=d.filter(r=>r.shift==='Shift 2').length;
+  const s3=d.filter(r=>r.shift==='Shift 3').length;
+  const kg=document.getElementById('statsGrid');
+  if(!kg)return;
+  kg.innerHTML=`
+    <div class="stat-card"><div class="val">${d.length}</div><div class="lbl">Total OT</div></div>
+    <div class="stat-card"><div class="val" style="color:#1565c0">${s1}</div><div class="lbl">Shift 1</div></div>
+    <div class="stat-card"><div class="val" style="color:#e65100">${s2}</div><div class="lbl">Shift 2</div></div>
+    <div class="stat-card"><div class="val" style="color:#6a1b9a">${s3}</div><div class="lbl">Shift 3</div></div>
+    <div class="stat-card"><div class="val" style="color:#2e7d32">${loadKary().filter(e=>e.status==='Aktif').length}</div><div class="lbl">Kary. Aktif</div></div>`;
+}
+
+function resetFilter(){
+  ['f-tgl','f-bln','f-q'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-shift').value='';
+  renderTable();
+}
+
+// ════════════════════════════════════════════════
+// EDIT / HAPUS OT — hapus PERMANEN (bukan soft delete)
+// ════════════════════════════════════════════════
+function editOT(id){
+  const data=loadOT();
+  const r=data.find(x=>String(x.id)===String(id)); if(!r)return;
+  document.getElementById('inp-nama').value     = r.nama||'';
+  document.getElementById('inp-nip').value      = r.nip||'';
+  document.getElementById('inp-dept').value     = r.dept||'';
+  document.getElementById('inp-jabatan').value  = r.jabatan||'';
+  document.getElementById('inp-tanggal').value  = r.tanggal||'';
+  document.getElementById('inp-shift').value    = r.shift||'';
+  document.getElementById('inp-jamMulai').value = r.jamMulai||'';
+  document.getElementById('inp-jamSelesai').value=r.jamSelesai||'';
+  document.getElementById('inp-ket').value      = r.ket||'';
+  // Hapus dulu, nanti disimpan ulang
+  const baru = data.filter(x=>String(x.id)!==String(id));
+  saveOT(baru); otData=baru;
+  showPage('input', document.querySelector('nav button'));
+  toast('✏️ Data dimuat. Simpan setelah diedit.');
+}
+
+function hapusOT(id){
+  if(!confirm('Hapus data OT ini secara permanen?')) return;
+  const baru = loadOT().filter(x=>String(x.id)!==String(id));
+  saveOT(baru); otData=baru;
+  renderTable(); renderStats();
+  toast('🗑️ Data berhasil dihapus.');
+}
+
+function hapusSemuaOT(){
+  if(!confirm('Hapus SEMUA data OT? Tidak dapat dibatalkan.')) return;
+  saveOT([]); otData=[];
+  renderTable(); renderStats();
+  toast('🗑️ Semua data OT dihapus.');
+}
+
+// ════════════════════════════════════════════════
+// KARYAWAN CRUD
+// ════════════════════════════════════════════════
+function simpanKary(){
+  const editId=g('k-id'), nama=g('k-nama'), nip=g('k-nip');
+  if(!nama){ toast('⚠️ Nama wajib diisi!','warn'); return; }
+  if(nip && !validasiNIP(nip)){ toast('⚠️ Format NIP harus XX-XXXX (contoh: 04-0112)','warn'); return; }
+  let emps=loadKary();
+  const obj={nama,nip,dept:g('k-dept'),jabatan:g('k-jabatan'),hp:g('k-hp'),status:document.getElementById('k-status').value,catatan:g('k-cat')};
+  if(editId){
+    const idx=emps.findIndex(e=>String(e.id)===String(editId));
+    if(idx>=0) emps[idx]={...emps[idx],...obj};
+    toast('✅ Data karyawan diperbarui.');
+  } else {
+    if(nip && emps.find(e=>e.nip===nip)){ toast('⚠️ NIP '+nip+' sudah terdaftar!','warn'); return; }
+    emps.push({id:Date.now(),...obj,createdAt:new Date().toISOString()});
+    toast('✅ Karyawan berhasil ditambahkan!');
+  }
+  saveKary(emps); karyData=emps;
+  resetFormK(); renderKary();
+}
+
+function resetFormK(){
+  ['k-id','k-nama','k-nip','k-dept','k-jabatan','k-hp','k-cat'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('k-status').value='Aktif';
+}
+
+function editKary(id){
+  const e=loadKary().find(x=>String(x.id)===String(id)); if(!e)return;
+  document.getElementById('k-id').value      = e.id;
+  document.getElementById('k-nama').value    = e.nama||'';
+  document.getElementById('k-nip').value     = e.nip||'';
+  document.getElementById('k-dept').value    = e.dept||'';
+  document.getElementById('k-jabatan').value = e.jabatan||'';
+  document.getElementById('k-hp').value      = e.hp||'';
+  document.getElementById('k-status').value  = e.status||'Aktif';
+  document.getElementById('k-cat').value     = e.catatan||'';
+  window.scrollTo({top:0,behavior:'smooth'});
+  toast('✏️ Data dimuat untuk diedit.');
+}
+
+function hapusKary(id){
+  if(!confirm('Hapus karyawan ini secara permanen?')) return;
+  const baru=loadKary().filter(e=>String(e.id)!==String(id));
+  saveKary(baru); karyData=baru;
+  renderKary();
+  toast('🗑️ Karyawan berhasil dihapus.');
+}
+
+function hapusSemuaKary(){
+  if(!confirm('Hapus SEMUA data karyawan?')) return;
+  saveKary([]); karyData=[];
+  renderKary();
+  toast('🗑️ Semua karyawan dihapus.');
+}
+
+function getFiltKary(){
+  let e=loadKary();
+  const q=g('k-q').toLowerCase(), st=g('k-sf');
+  if(q) e=e.filter(x=>x.nama?.toLowerCase().includes(q)||x.nip?.includes(q)||(x.dept||'').toLowerCase().includes(q));
+  if(st) e=e.filter(x=>(x.status||'Aktif')===st);
+  return e;
+}
+
+function renderKary(){
+  const emps=getFiltKary(), tb=document.getElementById('tblKary');
+  if(!emps.length){
+    tb.innerHTML=`<tr><td colspan="8"><div class="empty"><span>👥</span>Belum ada data karyawan</div></td></tr>`;return;
+  }
+  tb.innerHTML=emps.map((e,i)=>`<tr>
+    <td>${i+1}</td><td><b>${e.nama}</b></td>
+    <td><code style="font-size:.8rem">${e.nip||'-'}</code></td>
+    <td>${e.dept||'-'}</td><td>${e.jabatan||'-'}</td><td>${e.hp||'-'}</td>
+    <td><span class="badge ${e.status==='Aktif'?'bak':'bna'}">${e.status||'Aktif'}</span></td>
+    <td style="white-space:nowrap">
+      <button class="btn btn-warning btn-sm" onclick="editKary('${e.id}')">✏️</button>
+      <button class="btn btn-danger btn-sm" onclick="hapusKary('${e.id}')">🗑️</button>
+    </td></tr>`).join('');
+}
+
+// ════════════════════════════════════════════════
+// SINKRON — Export / Import JSON
+// ════════════════════════════════════════════════
+function eksporSinkron(tipe){
+  const payload = {
+    _v:2, _t: new Date().toISOString(), _tipe: tipe,
+    ot:   (tipe==='semua'||tipe==='ot')   ? loadOT()   : undefined,
+    kary: (tipe==='semua'||tipe==='kary') ? loadKary() : undefined,
+  };
+  const json = JSON.stringify(payload);
+  document.getElementById('eksporText').value = json;
+  document.getElementById('eksporHasil').style.display = 'block';
+}
+
+function copyKode(){
+  const ta = document.getElementById('eksporText');
+  ta.select(); ta.setSelectionRange(0,99999);
+  try{
+    document.execCommand('copy');
+    toast('📋 Kode berhasil dicopy! Kirim via WhatsApp.');
+  }catch(e){
+    navigator.clipboard.writeText(ta.value).then(()=>toast('📋 Kode berhasil dicopy!'));
+  }
+}
+
+function bukaImport(mode){
+  document.getElementById('importMode').value = mode;
+  document.getElementById('importText').value = '';
+  document.getElementById('modalImport').classList.add('show');
+}
+
+function tutupModal(){
+  document.getElementById('modalImport').classList.remove('show');
+}
+
+function doImport(){
+  const raw = document.getElementById('importText').value.trim();
+  const mode = document.getElementById('importMode').value;
+  if(!raw){ toast('⚠️ Kode tidak boleh kosong!','warn'); return; }
+  let payload;
+  try{ payload = JSON.parse(raw); }
+  catch(e){ toast('❌ Kode tidak valid! Pastikan copy dengan benar.','warn'); return; }
+  if(!payload._v){ toast('❌ Format tidak dikenali.','warn'); return; }
+
+  let totalOT=0, totalKary=0;
+
+  if(payload.ot){
+    if(mode==='timpa'){
+      saveOT(payload.ot); totalOT=payload.ot.length;
+    } else {
+      // Gabung — hanya tambah yang belum ada (by id)
+      const existing = loadOT();
+      const existIds = new Set(existing.map(x=>String(x.id)));
+      const baru = payload.ot.filter(x=>!existIds.has(String(x.id)));
+      saveOT([...existing,...baru]);
+      totalOT=baru.length;
+    }
+  }
+
+  if(payload.kary){
+    if(mode==='timpa'){
+      saveKary(payload.kary); totalKary=payload.kary.length;
+    } else {
+      const existing = loadKary();
+      const existIds = new Set(existing.map(x=>String(x.id)));
+      const baru = payload.kary.filter(x=>!existIds.has(String(x.id)));
+      saveKary([...existing,...baru]);
+      totalKary=baru.length;
+    }
+  }
+
+  reloadAll();
+  tutupModal();
+  renderStats();
+  const msg = mode==='timpa'
+    ? `✅ Import selesai! OT: ${totalOT} data, Karyawan: ${totalKary} data.`
+    : `✅ Import selesai! Ditambahkan: ${totalOT} OT baru, ${totalKary} karyawan baru.`;
+  toast(msg);
+}
+
+// ════════════════════════════════════════════════
+// EXPORT PNG — Canvas API murni
+// ════════════════════════════════════════════════
+function exportPNG(tipe){
+  const isOT = tipe==='ot';
+  const data  = isOT ? getFiltered() : getFiltKary();
+  if(!data.length){ toast('⚠️ Tidak ada data untuk diekspor','warn'); return; }
+  showOv('Membuat gambar PNG...');
+  setTimeout(()=>{
+    try{
+      let cols;
+      if(isOT){
+        const fb=g('f-bln');
+        const per=fb?new Date(fb+'-01').toLocaleDateString('id-ID',{month:'long',year:'numeric'}):'Semua Periode';
+        cols=[
+          {h:'#',       w:32, fn:(r,i)=>({t:String(i+1),c:1})},
+          {h:'Tanggal', w:128,fn:r=>({t:fTgl(r.tanggal)})},
+          {h:'Shift',   w:68, fn:r=>({t:r.shift,b:1})},
+          {h:'Nama',    w:135,fn:r=>({t:r.nama,bo:1})},
+          {h:'NIP',     w:80, fn:r=>({t:r.nip||'-'})},
+          {h:'Dept',    w:76, fn:r=>({t:r.dept||'-'})},
+          {h:'Jabatan', w:86, fn:r=>({t:r.jabatan||'-'})},
+          {h:'Jam OT',  w:104,fn:r=>({t:(r.jamMulai||'-')+'–'+(r.jamSelesai||'-'),c:1})},
+          {h:'Durasi',  w:58, fn:r=>({t:dur(r.jamMulai,r.jamSelesai),c:1,bo:1})},
+          {h:'Keterangan',w:142,fn:r=>({t:r.ket||'-'})},
+        ];
+        cols._j='REKAP OVERTIME KARYAWAN — DEPARTEMEN CURING';
+        cols._s='Periode: '+per+' | Total: '+data.length+' data';
+      } else {
+        cols=[
+          {h:'#',         w:32, fn:(r,i)=>({t:String(i+1),c:1})},
+          {h:'Nama',      w:150,fn:r=>({t:r.nama,bo:1})},
+          {h:'NIP',       w:80, fn:r=>({t:r.nip||'-'})},
+          {h:'Departemen',w:104,fn:r=>({t:r.dept||'-'})},
+          {h:'Jabatan',   w:104,fn:r=>({t:r.jabatan||'-'})},
+          {h:'HP',        w:104,fn:r=>({t:r.hp||'-'})},
+          {h:'Status',    w:78, fn:r=>({t:r.status||'Aktif',b:1})},
+          {h:'Catatan',   w:162,fn:r=>({t:r.catatan||'-'})},
+        ];
+        cols._j='DATABASE KARYAWAN — DEPARTEMEN CURING';
+        cols._s='Total: '+data.length+' karyawan';
+      }
+
+      const S=2,PAD=26,HDR=70,TH=36,RH=32,FTR=34,F='Arial,sans-serif';
+      const TW=cols.reduce((s,c)=>s+c.w,0)+PAD*2;
+      const HT=PAD+HDR+TH+RH*data.length+FTR+PAD;
+      const cv=document.createElement('canvas');
+      cv.width=TW*S; cv.height=HT*S;
+      const cx=cv.getContext('2d');
+      cx.scale(S,S); cx.textBaseline='middle';
+
+      cx.fillStyle='#f0f4f8'; cx.fillRect(0,0,TW,HT);
+
+      const gr=cx.createLinearGradient(PAD,0,TW-PAD,0);
+      gr.addColorStop(0,'#1a73e8'); gr.addColorStop(1,'#0d47a1');
+      cx.fillStyle=gr; rr(cx,PAD,PAD,TW-PAD*2,HDR,10); cx.fill();
+      cx.fillStyle='#fff'; cx.font='bold 13px '+F;
+      cx.fillText(cols._j,PAD+14,PAD+18);
+      cx.font='11px '+F; cx.globalAlpha=.85;
+      cx.fillText(cols._s,PAD+14,PAD+40);
+      cx.fillText('Dicetak: '+new Date().toLocaleString('id-ID'),PAD+14,PAD+57);
+      cx.globalAlpha=1;
+
+      let y=PAD+HDR+8;
+      cx.fillStyle='#fff'; rr(cx,PAD,y,TW-PAD*2,TH+RH*data.length,8); cx.fill();
+      cx.fillStyle='#1a73e8'; rr(cx,PAD,y,TW-PAD*2,TH,[8,8,0,0]); cx.fill();
+      cx.fillStyle='#fff'; cx.font='bold 10px '+F;
+      let x=PAD; cols.forEach(c=>{cx.fillText(c.h,x+7,y+TH/2);x+=c.w;});
+      y+=TH;
+
+      const BC={'Shift 1':{bg:'#e3f2fd',fg:'#1565c0'},'Shift 2':{bg:'#fff3e0',fg:'#e65100'},'Shift 3':{bg:'#f3e5f5',fg:'#6a1b9a'},'Aktif':{bg:'#e8f5e9',fg:'#2e7d32'},'Tidak Aktif':{bg:'#ffebee',fg:'#c62828'}};
+
+      data.forEach((rec,ri)=>{
+        cx.fillStyle=ri%2===0?'#fff':'#f5f9ff'; cx.fillRect(PAD,y,TW-PAD*2,RH);
+        cx.strokeStyle='#e8e8e8'; cx.lineWidth=1;
+        cx.beginPath(); cx.moveTo(PAD,y+RH); cx.lineTo(TW-PAD,y+RH); cx.stroke();
+        x=PAD;
+        cols.forEach(col=>{
+          const cell=col.fn(rec,ri);
+          const txt=(cell.t==null)?'-':String(cell.t);
+          const mW=col.w-12;
+          if(cell.b){
+            const bc=BC[txt]||{bg:'#eee',fg:'#333'};
+            cx.font='bold 9px '+F;
+            const bw=Math.min(cx.measureText(txt).width+12,mW);
+            const bx=x+5,by=y+RH/2-8;
+            cx.fillStyle=bc.bg; rr(cx,bx,by,bw,16,8); cx.fill();
+            cx.fillStyle=bc.fg; cx.fillText(txt,bx+6,by+8);
+          } else {
+            cx.font=(cell.bo?'bold ':'')+' 10px '+F; cx.fillStyle='#333';
+            let t=txt;
+            while(cx.measureText(t).width>mW&&t.length>1) t=t.slice(0,-1);
+            if(t!==txt) t=t.slice(0,-1)+'…';
+            cx.fillText(t,cell.c?x+col.w/2-cx.measureText(t).width/2:x+7,y+RH/2);
+          }
+          x+=col.w;
+        });
+        x=PAD;
+        cols.slice(0,-1).forEach(c=>{
+          x+=c.w; cx.strokeStyle='#e0e0e0'; cx.lineWidth=.5;
+          cx.beginPath(); cx.moveTo(x,y); cx.lineTo(x,y+RH); cx.stroke();
+        });
+        y+=RH;
+      });
+
+      cx.fillStyle='#f5f9ff'; rr(cx,PAD,y,TW-PAD*2,FTR,[0,0,8,8]); cx.fill();
+      cx.strokeStyle='#1a73e8'; cx.lineWidth=2;
+      cx.beginPath(); cx.moveTo(PAD,y); cx.lineTo(TW-PAD,y); cx.stroke();
+      cx.font='10px '+F; cx.fillStyle='#666';
+      cx.fillText('PT. — Departemen Curing',PAD+10,y+FTR/2);
+      const ts='Dicetak: '+new Date().toLocaleString('id-ID');
+      cx.fillText(ts,TW-PAD-10-cx.measureText(ts).width,y+FTR/2);
+
+      cv.toBlob(blob=>{
+        hideOv();
+        if(!blob){ toast('❌ Gagal membuat gambar','warn'); return; }
+        const url=URL.createObjectURL(blob);
+        const a=document.createElement('a');
+        a.href=url; a.download='export_'+tipe+'_'+Date.now()+'.png';
+        a.style.display='none'; document.body.appendChild(a); a.click();
+        setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); },2000);
+        addHist(tipe,data.length,'PNG');
+        toast('🖼️ PNG berhasil diunduh!');
+      },'image/png');
+
+    } catch(e){ hideOv(); toast('❌ Error: '+e.message,'warn'); console.error(e); }
+  }, 80);
+}
+
+function rr(cx,x,y,w,h,r){
+  const[tl,tr,br,bl]=typeof r==='number'?[r,r,r,r]:r;
+  cx.beginPath();cx.moveTo(x+tl,y);cx.lineTo(x+w-tr,y);cx.quadraticCurveTo(x+w,y,x+w,y+tr);
+  cx.lineTo(x+w,y+h-br);cx.quadraticCurveTo(x+w,y+h,x+w-br,y+h);
+  cx.lineTo(x+bl,y+h);cx.quadraticCurveTo(x,y+h,x,y+h-bl);
+  cx.lineTo(x,y+tl);cx.quadraticCurveTo(x,y,x+tl,y);cx.closePath();
+}
+
+// ════════════════════════════════════════════════
+// EXPORT CSV
+// ════════════════════════════════════════════════
+function exportCSV(){
+  const data=getFiltered(); if(!data.length){toast('⚠️ Tidak ada data','warn');return;}
+  const h=['No','Nama','NIP','Dept','Jabatan','Tanggal','Shift','Jam Mulai','Jam Selesai','Durasi','Keterangan'];
+  const r=data.map((d,i)=>[i+1,d.nama,d.nip||'',d.dept||'',d.jabatan||'',d.tanggal,d.shift,d.jamMulai||'',d.jamSelesai||'',dur(d.jamMulai,d.jamSelesai),d.ket||'']);
+  unduhCSV([h,...r],'OT_'+Date.now()+'.csv');
+  addHist('ot',data.length,'CSV'); toast('📥 CSV berhasil diunduh');
+}
+
+function exportKaryCSV(){
+  const emps=getFiltKary(); if(!emps.length){toast('⚠️ Tidak ada data','warn');return;}
+  const h=['No','Nama','NIP','Dept','Jabatan','HP','Status','Catatan'];
+  const r=emps.map((e,i)=>[i+1,e.nama,e.nip||'',e.dept||'',e.jabatan||'',e.hp||'',e.status||'Aktif',e.catatan||'']);
+  unduhCSV([h,...r],'Karyawan_'+Date.now()+'.csv');
+  addHist('kary',emps.length,'CSV'); toast('📥 CSV berhasil diunduh');
+}
+
+function unduhCSV(rows,fn){
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=fn; a.style.display='none';
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); },1000);
+}
+
+// ════════════════════════════════════════════════
+// HISTORY
+// ════════════════════════════════════════════════
+function addHist(tipe,jumlah,format){
+  const h=loadHist();
+  h.unshift({id:Date.now(),waktu:new Date().toISOString(),tipe,jumlah,format});
+  saveHist(h.slice(0,100));
+}
+function renderHist(){
+  const h=loadHist(), tb=document.getElementById('tblHist');
+  if(!h.length){tb.innerHTML=`<tr><td colspan="5"><div class="empty"><span>📭</span>Belum ada history</div></td></tr>`;return;}
+  const tl={ot:'Rekap OT',kary:'Karyawan'};
+  tb.innerHTML=h.map((x,i)=>`<tr>
+    <td>${i+1}</td>
+    <td>${new Date(x.waktu).toLocaleString('id-ID')}</td>
+    <td>${tl[x.tipe]||x.tipe}</td>
+    <td>${x.jumlah}</td>
+    <td><span class="badge bak">${x.format}</span></td>
+  </tr>`).join('');
+}
+
+// ════════════════════════════════════════════════
+// UI HELPERS
+// ════════════════════════════════════════════════
+function showOv(msg){ document.getElementById('ovMsg').textContent=msg||'Memuat...'; document.getElementById('ov').classList.add('show'); }
+function hideOv(){ document.getElementById('ov').classList.remove('show'); }
+function toast(msg,type){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.style.background=type==='warn'?'#e65100':'#323232';
+  el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),3800);
+}
+
+// Tutup modal klik luar
+document.getElementById('modalImport').addEventListener('click',function(e){
+  if(e.target===this) tutupModal();
+});
+</script>
+</body>
+</html>
